@@ -2,7 +2,7 @@ const http= require('http');
 const express = require('express');
 const cors = require('cors');
 const { Configuration, OpenAI } = require('openai');
-//const { OpenAI } = require("langchain/llms");
+const PineconeClient = require("./utils/PineconeClient");
 const PORT = process.env.PORT || 5001;
 const fileLoad = require('./utils/fileTransform');
 
@@ -11,21 +11,43 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 app.use(express.json());
-fileLoad('data/food.pdf');
+//fileLoad('data/food.pdf');
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
+const embeddings = async (query) => {
+  // Configurar cliente Pinecone
+  const client = new PineconeClient(
+    process.env.PINECONE_API_KEY,
+    process.env.PINECONE_ENVIRONMENT,
+    process.env.PINECONE_INDEX_NAME
+  );
+
+  try {
+    // Buscar vectores en Pinecone
+    const results = await client.queryVectors(query, 5);
+    //console.log("Resultados relevantes:");
+    return results;
+
+  } catch (error) {
+    console.error("Error durante la consulta:", error);
+  }
+
+}
+
 app.post('/api/ask', async (req, res) => {
     const message = req.body.messages;
-    console.log("Mensaje recibido:", message);
-    if (message.length === 0) {
-      return res.status(400).json({
-        success: false,
-        error: 'Debes enviar un mensaje.',
-      });
+
+    // Realizar la consulta en Pinecone
+    const pineconeRequest = await embeddings(req.body.messages[0].content);
+    const prompt = {
+     role: "system",
+      content: `Eres agente de viajes, debes guiar al usuario en información relevante, como clima, precios tiquetes de avion, comida tipica, estilo de vida. Usa la siguiente información como contexto al responder si el usuario pregunta sobre comida tipica en Costa Rica: ${pineconeRequest}`
     }
+    console.log("Mensaje recibido:", message);
+    
     
     try {
       const response = await openai.chat.completions.create({
@@ -52,4 +74,4 @@ app.post('/api/ask', async (req, res) => {
   });
 
   
-  app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));
+  app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`)); 

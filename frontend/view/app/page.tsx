@@ -3,7 +3,6 @@ import { faAtom, faCoffee, faFilePdf, faHandSparkles, faUpload, faUpRightFromSqu
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import fileTransfor from "./utils/fileTransform";
 
 export default function Home() {
 
@@ -21,13 +20,14 @@ export default function Home() {
     setMessages(updatedMessages);
 
     try {
+
       const res = await axios.post('http://localhost:5001/api/ask', { messages: updatedMessages.length ? updatedMessages : [{ role: "system", content: "You are a helpful assistant." }] });
       setResponse(JSON.stringify(res.data.response));
 
       const updateWithSystemAnswer = [...updatedMessages, { role: "system", content: res.data.response.content }];
       setMessages(updateWithSystemAnswer);
 
-      console.log('Messages:', messages);
+      //console.log('Messages:', messages);
 
     } catch (error) {
       console.error('Error al obtener la respuesta:', error);
