@@ -63,7 +63,7 @@ export default function Home() {
                   <ul>
                     {messages.map((message, index) => (
                       <li key={index} className="p-4 m-2 box-assistance">
-                        <div className={message.role === "system" ? "bg-indigo-700 p-4 box" : "rounded-lg bg-blue-600 p-4"}>
+                        <div className={message.role === "system" ? "bg-indigo-700 p-4 box text-white" : "rounded-lg bg-blue-600 p-4 text-white"}>
                           {message.content}
                         </div>
                         <div className="">

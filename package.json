@@ -23,6 +23,8 @@
     "openai": "^4.76.0",
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^4.9.155",
+    "playwright": "^1.49.1",
+    "puppeteer": "^23.11.1",
     "sass": "^1.82.0"
   },
   "devDependencies": {
