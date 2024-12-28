@@ -7,6 +7,7 @@ const fileLoad = require('./utils/fileTransform');
 const scrapping = require('./utils/scrapping');
 const { Pinecone } = require("@pinecone-database/pinecone");
 const { OpenAIEmbeddings } = require("langchain/embeddings/openai");
+const api = require('./utils/APIRequest');
 
 require('dotenv').config();
 
@@ -19,6 +20,9 @@ const tours = scrapping(
   '.compact-card',
   'h3.compact-card__title',
   '.compact-card__price__text');
+
+
+const restaurants = api();
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -59,9 +63,11 @@ app.post('/api/ask', async (req, res) => {
     const pineconeRequest = await embeddings(req.body.messages[0].content);
     const prompt = {
       role: "system",
-      content: `Eres agente de viajes, debes guiar al usuario en información relevante, como clima, precios tiquetes de avion, comida tipica, estilo de vida. 
-      Usa la siguiente información como contexto al responder si el usuario pregunta sobre comida tipica en Costa Rica: ${pineconeRequest},
-      usa la siguiente información como contexto al responder si el usuario pregunta sobre tours en Costa Rica: ${tours}`
+      content: `Eres un gestor de viajes para el pais de Costa Rica, debes guiar al usuario en información relevante, como clima, precios tiquetes de avion, comida tipica, estilo de vida. 
+      Debes detectar si el usuario pregunta por comida tipica, tours, restaurantes, clima o precios de tiquetes de avion sobre Costa Rica. Si esto sucede, debes responder con la información:
+      comida tipica de Costa Rica: ${pineconeRequest},
+      toma como contexto la siguiente lista de tours para responder por tours en Costa Rica: ${tours} con el formato Titulo y Precio,
+      restaurantes en Costa Rica y recomienda los 5 mejores valorados solamente: ${restaurants}`
     }
 
     message.unshift(prompt);
@@ -70,7 +76,7 @@ app.post('/api/ask', async (req, res) => {
       const response = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: message,
-        max_tokens: 150,
+        max_tokens: 500,
       });
 
       res.status(200).json({
