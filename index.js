@@ -8,10 +8,14 @@ const scrapping = require('./utils/scrapping');
 const { Pinecone } = require("@pinecone-database/pinecone");
 const { OpenAIEmbeddings } = require("langchain/embeddings/openai");
 const api = require('./utils/APIRequest');
+const AIConfig = require('./utils/AIConfig');
+let { contexto, preguntaActual, contextoUsuario  } = require('./utils/gestorViajes');
+const { manejarRespuesta, obtenerSiguientePregunta, generarItinerario  } = require('./utils/gestorViajes');
 
 require('dotenv').config();
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 //fileLoad('data/food.pdf');
@@ -56,6 +60,29 @@ const embeddings = async (query) => {
 
 }
 
+app.post("/api/flows", async (req, res) => {
+  const { respuesta } = req.body;
+  console.log("Respuesta del usuario:", req.body);
+  
+  // Actualizar el contexto con la respuesta del usuario
+  contexto = manejarRespuesta(preguntaActual, respuesta, contexto);
+
+  // Obtener la siguiente pregunta o generar el itinerario
+  const siguientePregunta = obtenerSiguientePregunta(contexto);
+
+  if (siguientePregunta) {
+      preguntaActual = siguientePregunta;
+      res.json({ pregunta: siguientePregunta });
+  } else {
+      // Generar el itinerario una vez se tengan todas las respuestas
+      const itinerario = await generarItinerario(contexto);
+      res.status(200).json({
+        success: true,
+        response: `¡Aquí está tu itinerario!\n\n${itinerario}`
+      });
+  }
+});
+
 app.post('/api/ask', async (req, res) => {
     const message = req.body.messages;
 
@@ -94,7 +121,7 @@ app.post('/api/ask', async (req, res) => {
       });
     }
     
-  });
+});
 
   
   app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`)); 

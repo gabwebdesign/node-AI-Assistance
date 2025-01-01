@@ -2,7 +2,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 // Configura la petición
-const APIRequest = async () => {
+const APITemplate = async () => {
     const options = {
         method: 'GET',
         url: 'https://maps.googleapis.com/maps/api/place/nearbysearch/json',
@@ -26,5 +26,5 @@ const APIRequest = async () => {
       }).catch((error) => console.error(error));
 }
 
-module.exports = APIRequest;
+module.exports = APITemplate;
 

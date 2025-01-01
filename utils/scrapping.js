@@ -10,7 +10,7 @@ const scrapping = async (url,cardSelector,titleSelector,priceSelector) => {
 
   // Espera a que carguen los elementos de los tours
   await page.waitForLoadState('networkidle');
-  await page.waitForSelector(cardSelector,{ timeout: 30000 });
+  await page.waitForSelector(cardSelector,{ timeout: 60000 });
 
   // Extrae los títulos y precios de los elementos
   const tours = await page.$$eval(cardSelector, (cards, selectors) => {
@@ -22,7 +22,7 @@ const scrapping = async (url,cardSelector,titleSelector,priceSelector) => {
   }, { titleSelector, priceSelector });
 
   // Muestra los resultados
-  console.log(tours);
+  //console.log(tours);
 
   // Cierra el navegador
   await browser.close();

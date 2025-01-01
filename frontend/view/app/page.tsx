@@ -1,8 +1,9 @@
 "use client";
-import { faAtom, faCoffee, faFilePdf, faHandSparkles, faUpload, faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { faAtom, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import apiClient from "./apiClient";
 
 export default function Home() {
 
@@ -21,7 +22,8 @@ export default function Home() {
 
     try {
 
-      const res = await axios.post('http://localhost:5001/api/ask', { messages: updatedMessages.length ? updatedMessages : [{ role: "system", content: "You are a helpful assistant." }] });
+      const res = await axios.post('http://localhost:5001/api/ask', 
+        { messages: updatedMessages.length ? updatedMessages : [{ role: "system", content: "You are a helpful assistant." }] });
       setResponse(JSON.stringify(res.data.response));
 
       const updateWithSystemAnswer = [...updatedMessages, { role: "system", content: res.data.response.content }];
@@ -34,6 +36,29 @@ export default function Home() {
       setResponse('Hubo un error. Intenta nuevamente.');
     }
   };
+
+  const initFlow = async () => {
+
+    if (inputData.trim() === '') {
+      alert('Debes escribir una pregunta.');
+      return;
+    }
+
+    try {
+      const res = await axios.post('http://localhost:5001/api/flows', {
+        respuesta: inputData
+      } );
+      console.log("response.data.pregunta ",res.data.pregunta)
+      const assistanceResponse = res.data.pregunta ?? res.data.response;
+      
+      const updatedMessages = [{ role: "system", content: assistanceResponse }];
+      setMessages(updatedMessages);
+      return res.data.pregunta;
+    } catch (error) { 
+      console.error('Error al obtener la conversacion:', error)
+    }
+  }
+
 
   return (
     <div className="wrapper">
@@ -54,6 +79,9 @@ export default function Home() {
                       </button>
                       <button onClick={handleAsk} className="rounded-lg p-4 bg-blue-500">
                           Pregúntame algo
+                      </button>
+                      <button onClick={initFlow} className="rounded-lg p-4 bg-blue-500">
+                          Iniciar conversación
                       </button>
                   </div>
                 </div>
