@@ -1,8 +1,5 @@
 const scrapping = require("./scrapping");
 const APITemplate = require('./APIRequest');
-const { OpenAIEmbeddings } = require("langchain/embeddings/openai");
-const { Pinecone } = require("@pinecone-database/pinecone");
-const { OpenAI } = require('openai');
 const AIConfig = require('./AIConfig');
 
 let contextoUsuario = {
@@ -16,6 +13,11 @@ let contextoUsuario = {
 let contexto = { ...contextoUsuario }; // Contexto del usuario
 let preguntaActual = obtenerSiguientePregunta(contexto); // Primera pregunta
 let vectores_comida = [];
+
+function resetContext() {
+    contexto = { ...contextoUsuario };
+    preguntaActual = obtenerSiguientePregunta(contexto);
+}
 
 function obtenerSiguientePregunta(contexto) {
     if (!contexto.dias)return "¿Cuántos días desea que dure su itinerario?";
@@ -87,6 +89,8 @@ async function generarItinerario(contexto) {
         - Desayuno:\n
         - Almuerzo:\n
         - Cena:\n
+
+        Please generate the plan without including "### " lines in the response.
     `;
 
     try {
@@ -107,4 +111,4 @@ async function generarItinerario(contexto) {
   
 }
 
-module.exports = { contexto, preguntaActual, contextoUsuario, obtenerSiguientePregunta, manejarRespuesta, generarItinerario };
+module.exports = { contexto, preguntaActual, contextoUsuario, resetContext, obtenerSiguientePregunta, manejarRespuesta, generarItinerario };

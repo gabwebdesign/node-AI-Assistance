@@ -56,7 +56,7 @@ h1{
   }
 
   .box{
-    border-radius:2rem;
+    border-radius:1.3rem;
   }
 }
 
@@ -68,7 +68,7 @@ textarea:focus-visible {
 }
 
 .ballon{
-  border-radius: 2.4rem;
+  border-radius: 1.3rem;
   padding: 1.8rem;
 
   .btn{
@@ -78,7 +78,7 @@ textarea:focus-visible {
     color: #211c0a;
     font-weight: bold;
     transition: background-color 0.3s ease, transform 0.3s ease;
-
+    cursor: pointer;
     &:hover {
       background-color: #8bb8d9;
       transform: scale(1.05);

@@ -10,7 +10,7 @@ const { OpenAIEmbeddings } = require("langchain/embeddings/openai");
 const api = require('./utils/APIRequest');
 const AIConfig = require('./utils/AIConfig');
 let { contexto, preguntaActual, contextoUsuario  } = require('./utils/gestorViajes');
-const { manejarRespuesta, obtenerSiguientePregunta, generarItinerario  } = require('./utils/gestorViajes');
+const { manejarRespuesta, obtenerSiguientePregunta, generarItinerario, resetContext  } = require('./utils/gestorViajes');
 
 require('dotenv').config();
 
@@ -60,9 +60,13 @@ const embeddings = async (query) => {
 
 }
 
+app.get('/api/reset',() => {
+  resetContext();
+});
+
 app.post("/api/flows", async (req, res) => {
   const { respuesta } = req.body;
-  console.log("Respuesta del usuario:", req.body);
+  console.log(`Respuesta del usuario a ${preguntaActual}:, ${req.body}`);
   
   // Actualizar el contexto con la respuesta del usuario
   contexto = manejarRespuesta(preguntaActual, respuesta, contexto);

@@ -2,6 +2,7 @@
 import { faAtom } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
+import { init } from "next/dist/compiled/webpack/webpack";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -12,6 +13,7 @@ export default function Home() {
   const [response, setResponse] = useState('');
   const [inputEnabled, setInputEnabled] = useState(false);
   const [btnVisible, setBtnVisible] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleAsk = async () => {
 
@@ -46,20 +48,28 @@ export default function Home() {
     }
   };
 
-  const initFlow = async () => {
-    setInputEnabled(true);
-    setBtnVisible(false);
+  const resetDataUser = async () => {
+    try{
+      const res = await axios.get('http://localhost:5001/api/reset');
+      return res;
+    }catch(error){
+      console.error('Error al resetear la conversacion:', error)
+    }
+  }
 
+  const initFlow = async () => {
+    setLoading(true);
     try {
       const res = await axios.post('http://localhost:5001/api/flows', {
         respuesta: inputData
       } );
-      console.log("response.data.pregunta ",res.data.pregunta)
+      //console.log("response.data.pregunta ",res.data.pregunta)
       const assistanceResponse = res.data.pregunta ?? res.data.response;
       
       const updatedMessages = [{ role: "system", content: assistanceResponse }];
       setMessages(updatedMessages);
       setInputData('');
+      setLoading(false);
       return res.data.pregunta;
     } catch (error) { 
       console.error('Error al obtener la conversacion:', error)
@@ -70,7 +80,7 @@ export default function Home() {
   return (
     <div className="wrapper">
       <div className="">
-          <div className="p-4 gap-4">
+          <div className="p-2 gap-2">
             <div className="flex justify-center">
               <Image src={"/assistant-trip.png"} className="pt-5 pb-5" width={80} height={40} alt="assistant trip image" />
             </div>
@@ -82,12 +92,12 @@ export default function Home() {
             }
             
           </div>
-          <div className="chat p-5">
+          <div className="chat p-2">
 
               <div className="mb-3">
                   <ul>
                     {messages.map((message, index) => (
-                      <li key={index} className="m-2 box-assistance">
+                      <li key={index} className="box-assistance">
                         <div className={message.role === "system" ? "bg-gray p-4 box whitespace-break-spaces" : "rounded-lg bg-gray p-4 whitespace-break-spaces"}>
                           {message.content}
                         </div>
@@ -99,15 +109,18 @@ export default function Home() {
                 <div className="w-full p-4 ballon bg-gray flex flex-column md:flex-row justify-between">
                   {
                     inputEnabled &&
-                    <input
-                      type="text"
-                      className="w-full p-4 h-20 bg-transparent resize-none"
-                      placeholder="Tu respuesta aquí..."
-                      autoFocus
-                      value={inputData}
-                      onChange={(e) => setInputData(e.target.value)}
-                      onKeyUp={handleKeyPress}
-                    />
+                    <div>
+                        <input
+                          type="text"
+                          className="w-full p-4 h-20 bg-transparent resize-none"
+                          placeholder="Tu respuesta aquí..."
+                          autoFocus
+                          value={inputData}
+                          onChange={(e) => setInputData(e.target.value)}
+                          onKeyUp={handleKeyPress}
+                      />
+                    </div>
+                    
                   }
                   
                   <div className="flex justify-between">
@@ -120,7 +133,12 @@ export default function Home() {
                         {
                         btnVisible ? (
                           <button 
-                          onClick={initFlow}
+                          onClick={()=>{
+                            setBtnVisible(false);
+                            setInputEnabled(true);
+                            resetDataUser();
+                            initFlow();
+                          }}
                           className="btn">
                           Iniciar Itinerario
                           </button>
@@ -128,9 +146,10 @@ export default function Home() {
                           <button  
                           onClick={initFlow} 
                           className="btn"
-                          disabled={inputData.trim() === ''}
-                          >
-                          Contestar
+                          disabled={inputData.trim() === '' || loading}>
+                            {
+                              loading ? 'Cargando...' : 'Siguiente'
+                            }
                           </button>
                           )
                         }
