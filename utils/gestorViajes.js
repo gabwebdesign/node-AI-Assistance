@@ -18,7 +18,7 @@ let preguntaActual = obtenerSiguientePregunta(contexto); // Primera pregunta
 let vectores_comida = [];
 
 function obtenerSiguientePregunta(contexto) {
-    if (!contexto.dias) return "¿Cuántos días desea que dure su itinerario?";
+    if (!contexto.dias)return "¿Cuántos días desea que dure su itinerario?";
     if (!contexto.experiencia) return "¿Qué tipo de experiencia busca? (e.g., aventura, relajación, cultural, gastronómica, etc.)";
     if (!contexto.comida) return "¿Qué tipo de comida prefiere? ¿Tiene alguna restricción como comida vegana o sin gluten?";
     if (!contexto.presupuesto) return "¿Tiene un presupuesto aproximado para el viaje?";
@@ -32,7 +32,6 @@ function manejarRespuesta(preguntaActual, respuesta, contexto) {
     else if (preguntaActual.includes("comida")) contexto.comida = respuesta;
     else if (preguntaActual.includes("presupuesto")) contexto.presupuesto = respuesta;
     else if (preguntaActual.includes("lugares")) contexto.lugares = respuesta;
-  
     return contexto;
 }
 
@@ -47,9 +46,9 @@ async function generarItinerario(contexto) {
     '.compact-card__price__text');
 
   //const index = AIConfig.pinecone.index(process.env.PINECONE_INDEX_NAME);
-  const queryEmbedding = await AIConfig.embeddings.embedQuery(`opciones de comida: ${contexto.comida}`);
+  //const queryEmbedding = await AIConfig.embeddings.embedQuery(`opciones de comida: ${contexto.comida}`);
 
-  try {
+  /*try {
     const response_pinecone = await AIConfig.index.query({ 
       topK: 3, 
       vector: queryEmbedding,
@@ -60,7 +59,7 @@ async function generarItinerario(contexto) {
 
   } catch (error) {
     console.error("Error durante la consulta:", error);
-  }
+  }*/
 
   let previousDaysGenerated = "";
 
@@ -86,7 +85,6 @@ async function generarItinerario(contexto) {
         - Breakfast:
         - Lunch:
         - Dinner:
-        Please ensure each sentence is on a new line.
     `;
 
     try {
@@ -95,8 +93,6 @@ async function generarItinerario(contexto) {
         max_tokens: 2000,
         prompt:prompt
       }); 
-      //console.log("Respuesta de OpenAI:", diaGenerado.choices[0].text);
-
       // Actualiza el resumen con el resultado del día actual
       previousDaysGenerated += `Day ${dia} Plan:\n${diaGenerado.choices[0].text}\n\n`;
       //return completion.choices[0].text;
@@ -104,7 +100,7 @@ async function generarItinerario(contexto) {
        console.error("Error durante la consulta:", error);  
     }
   }
-
+  contexto = { ...contextoUsuario }; // Reiniciar el contexto
   return previousDaysGenerated;
   
 }
