@@ -1,11 +1,25 @@
+# Node AI Assistance
+
+Este proyecto es una aplicación de asistencia de IA construida (RAG) con Node.js, Express, y React. Utiliza la API de OpenAI para generar itinerarios de viaje. Este proyecto es un ejemplo de cómo utilizar la API de OpenAI para generar itinerarios de viaje personalizados.
+
+Este RAG toma genera un itinerario de viajes basandose en la siguiente información:
+ - Preferencias del usuario.
+ - Scrapping https://www.civitatis.com/es/costa-rica para acceso a una lista tours.
+ - Google API Place para acceso a restaurantes y revisiones de los usuarios.
+
+
+## Requisitos
+
+- Node.js (versión 14 o superior)
+- npm (versión 6 o superior)
 
 ## Instalación
 
-1. Clona el repositorio:
-    ```bash
-    git clone <URL_DEL_REPOSITORIO>
-    cd <NOMBRE_DEL_REPOSITORIO>
-    ```
+1. Clona este repositorio:
+   ```sh
+   git clone https://github.com/tu-usuario/node-ai-assistance.git
+   cd node-ai-assistance
+   ```
 
 2. Instala las dependencias:
     ```bash
@@ -42,17 +56,11 @@
     npm run dev
     ```
 
-3. Abre `http://localhost:3000` en tu navegador para ver la aplicación.
+3. Abre `http://localhost:3002` en tu navegador para ver la aplicación.
 
 ## Funcionalidades
 
-### Extracción de Texto de PDF
-
-El archivo [`fileTransform.js`](utils/fileTransform.js) contiene funciones para extraer texto de archivos PDF y obtener embeddings utilizando OpenAI.
-
 ### Embeddings y Pinecone
-
-La función [`getEmbeddings`](utils/fileTransform.js) en [`fileTransform.js`](utils/fileTransform.js) utiliza la API de OpenAI para generar embeddings de texto. Estos embeddings se almacenan en Pinecone para su posterior recuperación y análisis. La función [`fileTransform`](utils/fileTransform.js) se encarga de dividir el texto en fragmentos y subirlos a Pinecone.
 
 ### Interfaz de Usuario
 
