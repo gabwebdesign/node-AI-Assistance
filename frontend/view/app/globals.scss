@@ -4,13 +4,15 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #8a8e8e;
+  --gray:#f3f3f5;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --gray:#f3f3f5;
   }
 }
 
@@ -22,15 +24,21 @@ body {
 
 .wrapper {
   width: 100%;
-  max-width: 62rem;
+  max-width: 35rem;
   margin: 0 auto;
   padding: 1rem;
 }
 
 h1{
-  font-size: 2.5rem;
+  font-size: 1.5rem;
   font-weight: bold;
-  line-height: 1em;
+  line-height: 1.2em;
+}
+
+.h1{
+  font-weight: normal;
+  font-size: 1.2rem;
+  line-height: 1.5rem;
 }
 
 .container-grid{
@@ -48,7 +56,7 @@ h1{
   }
 
   .box{
-    border-radius: .5rem .5rem .5rem 0;
+    border-radius:2rem;
   }
 }
 
@@ -58,3 +66,24 @@ input:focus-visible,
 textarea:focus-visible {
     outline: none;
 }
+
+.ballon{
+  border-radius: 2.4rem;
+  padding: 1.8rem;
+
+  .btn{
+    padding: 19px;
+    border-radius: 20px;
+    background: #a2cfea;
+    color: #211c0a;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+
+    &:hover {
+      background-color: #8bb8d9;
+      transform: scale(1.05);
+    }
+  }
+}
+
+

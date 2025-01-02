@@ -67,6 +67,8 @@ async function generarItinerario(contexto) {
 
     const prompt = `
     You are a travel assistant. Generate a unique plan for Day ${dia} of a ${contexto.dias}-day trip.
+    Generar todo en español.
+    
     ### User Info:
         - Experience: ${contexto.experiencia}
         - Food preferences: ${contexto.comida}
@@ -80,11 +82,11 @@ async function generarItinerario(contexto) {
         - Available tours: ${tours}
         - Nearby restaurants: ${restaurantes_api}
 
-        ### Format:
-        - Main Activity:
-        - Breakfast:
-        - Lunch:
-        - Dinner:
+        ### Format (Do not include this line in the response):
+        - Actividad:\n
+        - Desayuno:\n
+        - Almuerzo:\n
+        - Cena:\n
     `;
 
     try {
@@ -94,7 +96,7 @@ async function generarItinerario(contexto) {
         prompt:prompt
       }); 
       // Actualiza el resumen con el resultado del día actual
-      previousDaysGenerated += `Day ${dia} Plan:\n${diaGenerado.choices[0].text}\n\n`;
+      previousDaysGenerated += `Día ${dia} Plan:\n${diaGenerado.choices[0].text}\n\n`;
       //return completion.choices[0].text;
     }catch (error) {
        console.error("Error durante la consulta:", error);  
