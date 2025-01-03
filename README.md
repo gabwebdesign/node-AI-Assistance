@@ -7,6 +7,7 @@ Este RAG toma genera un itinerario de viajes basandose en la siguiente informaci
  - Scrapping https://www.civitatis.com/es/costa-rica para acceso a una lista tours.
  - Google API Place para acceso a restaurantes y revisiones de los usuarios.
 
+![Diagram about RAG](/diagram.png)
 
 ## Requisitos
 
