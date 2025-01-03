@@ -19,18 +19,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 //fileLoad('data/food.pdf');
-const tours = scrapping(
-  'https://www.civitatis.com/es/costa-rica/?_gl=1*pjnvms*_up*MQ..*_gs*MQ..&gclid=CjwKCAiAyJS7BhBiEiwAyS9uNe7Mf6WTrwuOfTmSSFYe6nKzNhb1MHZcc2STGKAN4RK5MHQZlquVLhoCNawQAvD_BwE&gclsrc=aw.ds',
-  '.compact-card',
-  'h3.compact-card__title',
-  '.compact-card__price__text');
+//const tours = scrapping(
+//  'https://www.civitatis.com/es/costa-rica/?_gl=1*pjnvms*_up*MQ..*_gs*MQ..&gclid=CjwKCAiAyJS7BhBiEiwAyS9uNe7Mf6WTrwuOfTmSSFYe6nKzNhb1MHZcc2STGKAN4RK5MHQZlquVLhoCNawQAvD_BwE&gclsrc=aw.ds',
+//  '.compact-card',
+//  'h3.compact-card__title',
+//  '.compact-card__price__text');
 
 
-const restaurants = api();
+//const restaurants = api();
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+//const openai = new OpenAI({
+//    apiKey: process.env.OPENAI_API_KEY,
+//});
 
 const embeddings = async (query) => {
 
@@ -90,15 +90,13 @@ app.post("/api/flows", async (req, res) => {
 app.post('/api/ask', async (req, res) => {
     const message = req.body.messages;
 
-    // Realizar la consulta en Pinecone
-    const pineconeRequest = await embeddings(req.body.messages[0].content);
     const prompt = {
       role: "system",
       content: `Eres un gestor de viajes para el pais de Costa Rica, debes guiar al usuario en información relevante, como clima, precios tiquetes de avion, comida tipica, estilo de vida. 
       Debes detectar si el usuario pregunta por comida tipica, tours, restaurantes, clima o precios de tiquetes de avion sobre Costa Rica. Si esto sucede, debes responder con la información:
-      comida tipica de Costa Rica: ${pineconeRequest},
+      comida tipica de Costa Rica:,
       toma como contexto la siguiente lista de tours para responder por tours en Costa Rica: ${tours} con el formato Titulo y Precio,
-      restaurantes en Costa Rica y recomienda los 5 mejores valorados solamente: ${restaurants}`
+      restaurantes en Costa Rica y recomienda los 5 mejores valorados solamente:`
     }
 
     message.unshift(prompt);

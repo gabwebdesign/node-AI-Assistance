@@ -1,8 +1,5 @@
 "use client";
-import { faAtom } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
-import { init } from "next/dist/compiled/webpack/webpack";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -14,6 +11,7 @@ export default function Home() {
   const [inputEnabled, setInputEnabled] = useState(false);
   const [btnVisible, setBtnVisible] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [flowFinished, setFlowFinished] = useState(false);
 
   const handleAsk = async () => {
 
@@ -32,8 +30,6 @@ export default function Home() {
 
       const updateWithSystemAnswer = [...updatedMessages, { role: "system", content: res.data.response.content }];
       setMessages(updateWithSystemAnswer);
-
-      //console.log('Messages:', messages);
 
     } catch (error) {
       console.error('Error al obtener la respuesta:', error);
@@ -59,30 +55,34 @@ export default function Home() {
 
   const initFlow = async () => {
     setLoading(true);
+
     try {
       const res = await axios.post('http://localhost:5001/api/flows', {
         respuesta: inputData
       } );
-      //console.log("response.data.pregunta ",res.data.pregunta)
+
+      const userMessage = { role: "user", content: inputData };
       const assistanceResponse = res.data.pregunta ?? res.data.response;
-      
-      const updatedMessages = [{ role: "system", content: assistanceResponse }];
-      setMessages(updatedMessages);
+      const systemMessage = { role: "system", content: assistanceResponse };
+      if(assistanceResponse.includes('¡Aquí está tu itinerario!')) setFlowFinished(true);
+      // Actualiza el estado de messages usando la función de actualización
+      setMessages(prevMessages => [...prevMessages, userMessage, systemMessage]);
+      console.log('messages:', messages);
+
       setInputData('');
       setLoading(false);
-      return res.data.pregunta;
+      //return res.data.pregunta;
     } catch (error) { 
       console.error('Error al obtener la conversacion:', error)
     }
   }
-
 
   return (
     <div className="wrapper">
       <div className="">
           <div className="p-2 gap-2">
             <div className="flex justify-center">
-              <Image src={"/assistant-trip.png"} className="pt-5 pb-5" width={80} height={40} alt="assistant trip image" />
+              <Image src={"/assistant-trip.png"} className="pt-5 pb-5 w-auto h-auto" width={80} height={40} alt="assistant trip image" />
             </div>
             {
               btnVisible && 
@@ -97,7 +97,7 @@ export default function Home() {
               <div className="mb-3">
                   <ul>
                     {messages.map((message, index) => (
-                      <li key={index} className="box-assistance">
+                      <li key={index} className="box-assistance mb-3">
                         <div className={message.role === "system" ? "bg-gray p-4 box whitespace-break-spaces" : "rounded-lg bg-gray p-4 whitespace-break-spaces"}>
                           {message.content}
                         </div>
@@ -113,7 +113,7 @@ export default function Home() {
                         <input
                           type="text"
                           className="w-full p-4 h-20 bg-transparent resize-none"
-                          placeholder="Tu respuesta aquí..."
+                          placeholder={ !flowFinished ? "Tu respuesta aquí..." : "Deseas modificar algo?"}
                           autoFocus
                           value={inputData}
                           onChange={(e) => setInputData(e.target.value)}
@@ -131,7 +131,7 @@ export default function Home() {
                           Pregúntame algo
                       </button>*/}
                         {
-                        btnVisible ? (
+                          btnVisible &&
                           <button 
                           onClick={()=>{
                             setBtnVisible(false);
@@ -142,16 +142,25 @@ export default function Home() {
                           className="btn">
                           Iniciar Itinerario
                           </button>
-                          ) : (
-                          <button  
-                          onClick={initFlow} 
-                          className="btn"
-                          disabled={inputData.trim() === '' || loading}>
-                            {
-                              loading ? 'Cargando...' : 'Siguiente'
-                            }
+                        }
+                        { 
+                            !btnVisible && !flowFinished &&
+                            <button  
+                            onClick={initFlow} 
+                            className="btn"
+                            disabled={inputData.trim() === '' || loading}>
+                              {
+                                loading ? 'Cargando...' : 'Siguiente'
+                              }
+                            </button>
+                        }
+                        {
+                            flowFinished &&
+                            <button
+                              onClick={handleAsk}
+                              className="btn">
+                            Preguntar
                           </button>
-                          )
                         }
                   </div>
                 </div>
