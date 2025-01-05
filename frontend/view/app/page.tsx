@@ -1,7 +1,7 @@
 "use client";
 import axios from "axios";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
 
@@ -12,6 +12,9 @@ export default function Home() {
   const [btnVisible, setBtnVisible] = useState(true);
   const [loading, setLoading] = useState(false);
   const [flowFinished, setFlowFinished] = useState(false);
+  const [itinerary, setItinerary] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [itineraryCorrected, setItineraryCorrected] = useState(false);
 
   const handleAsk = async () => {
 
@@ -37,10 +40,14 @@ export default function Home() {
     }
   };
 
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
-      initFlow();
+      if(!flowFinished){
+        initFlow() 
+      }else{
+        sendFeedback();
+      }
     }
   };
 
@@ -64,17 +71,48 @@ export default function Home() {
       const userMessage = { role: "user", content: inputData };
       const assistanceResponse = res.data.pregunta ?? res.data.response;
       const systemMessage = { role: "system", content: assistanceResponse };
-      if(assistanceResponse.includes('¡Aquí está tu itinerario!')) setFlowFinished(true);
+      
+      if(assistanceResponse.includes('¡Aquí está tu itinerario!')){
+        setFlowFinished(true);
+        setItinerary(assistanceResponse);
+      };
       // Actualiza el estado de messages usando la función de actualización
       setMessages(prevMessages => [...prevMessages, userMessage, systemMessage]);
       console.log('messages:', messages);
 
       setInputData('');
       setLoading(false);
+      setItineraryCorrected(true);
       //return res.data.pregunta;
     } catch (error) { 
       console.error('Error al obtener la conversacion:', error)
     }
+  }
+
+  const sendFeedback = async () => {
+    try {
+      const res = await axios.post('http://localhost:5001/api/feedback',{feedback: inputData});
+      console.log('nuevo itinerario:', res.data.response);
+
+      updateMessages(res.data.response, inputData);
+    } catch (error) {
+      console.error('Error al obtener el itinerario corregido:', error);
+    }
+  }
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const updateMessages = (messageFormAI: string, inputDataUser:string) => {
+    // Actualiza el estado de messages usando la función de actualización
+    const userMessage = { role: "user", content: inputDataUser };
+    const systemMessage = { role: "system", content: messageFormAI };
+    setMessages(prevMessages => [...prevMessages, userMessage, systemMessage]);
   }
 
   return (
@@ -98,20 +136,22 @@ export default function Home() {
                   <ul>
                     {messages.map((message, index) => (
                       <li key={index} className="box-assistance mb-3">
-                        <div className={message.role === "system" ? "bg-gray p-4 box whitespace-break-spaces" : "rounded-lg bg-gray p-4 whitespace-break-spaces"}>
+                        {
+                          message.content && 
+                          <div ref={messagesEndRef} className={message.role === "system" ? "bg-turquoise p-4 box whitespace-break-spaces" : "bg-gray p-4 box whitespace-break-spaces"}>
                           {message.content}
-                        </div>
+                          </div>
+                        }
                       </li>
                     ))}
                   </ul>
                 </div>
-
+                
                 <div className="w-full p-4 ballon bg-gray flex flex-column md:flex-row justify-between">
                   {
-                    inputEnabled &&
-                    <div>
-                        <input
-                          type="text"
+                    inputEnabled && 
+                    <div className="w-full">
+                        <textarea
                           className="w-full p-4 h-20 bg-transparent resize-none"
                           placeholder={ !flowFinished ? "Tu respuesta aquí..." : "Deseas modificar algo?"}
                           autoFocus
@@ -131,12 +171,12 @@ export default function Home() {
                           Pregúntame algo
                       </button>*/}
                         {
-                          btnVisible &&
+                          btnVisible && 
                           <button 
                           onClick={()=>{
                             setBtnVisible(false);
                             setInputEnabled(true);
-                            resetDataUser();
+                            //resetDataUser();
                             initFlow();
                           }}
                           className="btn">
@@ -150,16 +190,16 @@ export default function Home() {
                             className="btn"
                             disabled={inputData.trim() === '' || loading}>
                               {
-                                loading ? 'Cargando...' : 'Siguiente'
+                                loading ? 'Generando Itinerario...' : 'Siguiente'
                               }
                             </button>
                         }
                         {
                             flowFinished &&
                             <button
-                              onClick={handleAsk}
+                              onClick={()=>{sendFeedback()}}
                               className="btn">
-                            Preguntar
+                            Modificar algo
                           </button>
                         }
                   </div>

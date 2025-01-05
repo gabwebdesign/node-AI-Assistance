@@ -13,17 +13,21 @@ let contextoUsuario = {
 let contexto = { ...contextoUsuario }; // Contexto del usuario
 let preguntaActual = obtenerSiguientePregunta(contexto); // Primera pregunta
 let vectores_comida = [];
+let itinerary = "";
+let restaurants=[];
+let tours=[]; 
 
-function resetContext() {
+async function resetContext() {
     contexto = { ...contextoUsuario };
     preguntaActual = obtenerSiguientePregunta(contexto);
+    return contexto;
 }
 
 function obtenerSiguientePregunta(contexto) {
     if (!contexto.dias)return "¿Cuántos días desea que dure su itinerario?";
     if (!contexto.experiencia) return "¿Qué tipo de experiencia busca? (e.g., aventura, relajación, cultural, gastronómica, etc.)";
     if (!contexto.comida) return "¿Qué tipo de comida prefiere? ¿Tiene alguna restricción como comida vegana o sin gluten?";
-    if (!contexto.presupuesto) return "¿Tiene un presupuesto aproximado para el viaje?";
+    if (!contexto.presupuesto) return "¿Tiene un presupuesto aproximado para el viaje por día en dolares?";
     if (!contexto.lugares) return "¿Hay lugares que quiera visitar o actividades que no puedan faltar?";
     return null; // Todas las preguntas respondidas
 }
@@ -40,8 +44,8 @@ function manejarRespuesta(preguntaActual, respuesta, contexto) {
 
 async function generarItinerario(contexto) {
 
-  const restaurantes_api = await APITemplate();
-  const tours = await scrapping(
+  restaurants = await APITemplate();
+  tours = await scrapping(
     'https://www.civitatis.com/es/costa-rica/?_gl=1*pjnvms*_up*MQ..*_gs*MQ..&gclid=CjwKCAiAyJS7BhBiEiwAyS9uNe7Mf6WTrwuOfTmSSFYe6nKzNhb1MHZcc2STGKAN4RK5MHQZlquVLhoCNawQAvD_BwE&gclsrc=aw.ds',
     '.compact-card',
     'h3.compact-card__title',
@@ -82,13 +86,14 @@ async function generarItinerario(contexto) {
 
         ### Data for Day ${dia}:
         - Available tours: ${tours}
-        - Nearby restaurants: ${restaurantes_api}
+        - Nearby restaurants: ${restaurants}
 
         ### Format (Do not include this line in the response):
         - Actividad:\n
         - Desayuno:\n
         - Almuerzo:\n
         - Cena:\n
+        - Precio:\n
 
         Please generate the plan without including "### " lines in the response.
     `;
@@ -106,9 +111,42 @@ async function generarItinerario(contexto) {
        console.error("Error durante la consulta:", error);  
     }
   }
-  contexto = { ...contextoUsuario }; // Reiniciar el contexto
+  contexto = { ...contextoUsuario };
+  itinerary = previousDaysGenerated;
   return previousDaysGenerated;
   
 }
 
-module.exports = { contexto, preguntaActual, contextoUsuario, resetContext, obtenerSiguientePregunta, manejarRespuesta, generarItinerario };
+async function feedbackItinerary(feedback) {
+  const prompt = 
+    `El usuario ha pedido corregir el itinerario de viajes, se preciso y solo corrige lo que se te pide.
+
+    ### Itinerario actual:
+    ${itinerary}
+
+    ### lo que el cliente piensa que está mal:
+    ${feedback}
+
+    ### Instructions:
+    - Corrije el itinerario ${feedback}.
+    - Solo corrije el itinerario, no lo reescribas, no crear uno nuevo.
+    - Tours disponibles: ${tours}
+    - Restaurantes cerca: ${restaurants}
+    - La respuesta debe ser solo el itinerario corregido.
+    - No incluir las líneas "### " en la respuesta.
+    `;
+
+  try {
+    const response = await AIConfig.openai.completions.create({
+      model: "gpt-3.5-turbo-instruct",
+      prompt,
+      max_tokens: 2000,
+    });
+    console.log("Respuesta del modelo:", response.choices[0].text);
+    return response.choices[0].text;
+  }catch (error) {
+    console.error("Error durante la consulta:", error);
+  }
+}
+
+module.exports = { contexto, preguntaActual, contextoUsuario, resetContext, obtenerSiguientePregunta, manejarRespuesta, generarItinerario, feedbackItinerary};

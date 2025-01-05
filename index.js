@@ -9,8 +9,8 @@ const { Pinecone } = require("@pinecone-database/pinecone");
 const { OpenAIEmbeddings } = require("langchain/embeddings/openai");
 const api = require('./utils/APIRequest');
 const AIConfig = require('./utils/AIConfig');
-let { contexto, preguntaActual, contextoUsuario  } = require('./utils/gestorViajes');
-const { manejarRespuesta, obtenerSiguientePregunta, generarItinerario, resetContext  } = require('./utils/gestorViajes');
+let { contexto, preguntaActual, contextoUsuario } = require('./utils/gestorViajes');
+const { manejarRespuesta, obtenerSiguientePregunta, generarItinerario, resetContext , feedbackItinerary } = require('./utils/gestorViajes');
 
 require('dotenv').config();
 
@@ -60,8 +60,12 @@ const embeddings = async (query) => {
 
 }
 
-app.get('/api/reset',() => {
-  resetContext();
+app.get('/api/reset', async (res) => {
+  const reset = await resetContext();
+  res.status(200).json({
+    success: true,
+    response: 'Contexto reiniciado'
+  });
 });
 
 app.post("/api/flows", async (req, res) => {
@@ -79,12 +83,20 @@ app.post("/api/flows", async (req, res) => {
       res.json({ pregunta: siguientePregunta });
   } else {
       // Generar el itinerario una vez se tengan todas las respuestas
-      const itinerario = await generarItinerario(contexto);
+      const itinerary = await generarItinerario(contexto);
       res.status(200).json({
         success: true,
-        response: `¡Aquí está tu itinerario!\n\n${itinerario}`
+        response: `¡Aquí está tu itinerario!\n\n${itinerary}`
       });
   }
+});
+
+app.post('/api/feedback', async (req, res) => {
+  const newItinerary = await feedbackItinerary(req.body.feedback);
+  res.status(200).json({
+    success: true,
+    response: `¡Aquí está tu itinerario!\n\n${newItinerary}`
+  })
 });
 
 app.post('/api/ask', async (req, res) => {

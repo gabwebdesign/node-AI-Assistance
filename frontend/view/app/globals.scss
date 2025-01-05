@@ -6,6 +6,7 @@
   --background: #ffffff;
   --foreground: #8a8e8e;
   --gray:#f3f3f5;
+  --turquoise: #e9f9f9;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -13,6 +14,7 @@
     --background: #0a0a0a;
     --foreground: #8a8e8e;
     --gray:#f3f3f5;
+    --turquoise: #e9f9f9;
   }
 }
 
@@ -70,6 +72,19 @@ textarea:focus-visible {
 .ballon{
   border-radius: 1.3rem;
   padding: .8rem;
+
+  animation: slideInRight 0.8s forwards;
+
+  @keyframes slideInRight {
+    from {
+      transform: translateY(200px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
 
   .btn{
     padding: 19px;
