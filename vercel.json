@@ -1,0 +1,20 @@
+{
+    "version": 2,
+    "projects": {
+      "frontend": {
+        "src": "frontend/view",
+        "use": "@vercel/static-build",
+        "buildCommand": "npm run build",
+        "outputDirectory": "build"
+      },
+      "backend": {
+        "src": "/",
+        "use": "@vercel/node"
+      }
+    },
+    "routes": [
+      { "src": "/api/(.*)", "dest": "/index.js" }, 
+      { "src": "/(.*)", "dest": "/frontend/view/$1" }
+    ]
+  }
+  
