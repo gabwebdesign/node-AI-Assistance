@@ -7,38 +7,12 @@ export default function Home() {
 
   const [inputData, setInputData] = useState('');
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
-  const [response, setResponse] = useState('');
   const [inputEnabled, setInputEnabled] = useState(false);
   const [btnVisible, setBtnVisible] = useState(true);
   const [loading, setLoading] = useState(false);
   const [flowFinished, setFlowFinished] = useState(false);
-  const [itinerary, setItinerary] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [itineraryCorrected, setItineraryCorrected] = useState(false);
-
-  const handleAsk = async () => {
-
-    if (inputData.trim() === '') {
-      alert('Debes escribir una pregunta.');
-      return;
-    }
-    const updatedMessages = [...messages, { role: "user", content: inputData }];
-    setMessages(updatedMessages);
-
-    try {
-
-      const res = await axios.post('http://localhost:5001/api/ask', 
-        { messages: updatedMessages.length ? updatedMessages : [{ role: "system", content: "You are a helpful assistant." }] });
-      setResponse(JSON.stringify(res.data.response));
-
-      const updateWithSystemAnswer = [...updatedMessages, { role: "system", content: res.data.response.content }];
-      setMessages(updateWithSystemAnswer);
-
-    } catch (error) {
-      console.error('Error al obtener la respuesta:', error);
-      setResponse('Hubo un error. Intenta nuevamente.');
-    }
-  };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -51,14 +25,14 @@ export default function Home() {
     }
   };
 
-  const resetDataUser = async () => {
+  /*const resetDataUser = async () => {
     try{
       const res = await axios.get('http://localhost:5001/api/reset');
       return res;
     }catch(error){
       console.error('Error al resetear la conversacion:', error)
     }
-  }
+  }*/
 
   const initFlow = async () => {
     setLoading(true);
@@ -74,7 +48,6 @@ export default function Home() {
       
       if(assistanceResponse.includes('¡Aquí está tu itinerario!')){
         setFlowFinished(true);
-        setItinerary(assistanceResponse);
       };
       // Actualiza el estado de messages usando la función de actualización
       setMessages(prevMessages => [...prevMessages, userMessage, systemMessage]);
@@ -146,66 +119,65 @@ export default function Home() {
                     ))}
                   </ul>
                 </div>
-                
-                <div className="w-full p-4 ballon bg-gray flex flex-column md:flex-row justify-between">
-                  {
-                    inputEnabled && 
-                    <div className="w-full">
-                        <textarea
-                          className="w-full p-4 h-20 bg-transparent resize-none"
-                          placeholder={ !flowFinished ? "Tu respuesta aquí..." : "Deseas modificar algo?"}
-                          autoFocus
-                          value={inputData}
-                          onChange={(e) => setInputData(e.target.value)}
-                          onKeyUp={handleKeyPress}
-                      />
-                    </div>
-                    
-                  }
-                  
-                  <div className="flex justify-between">
-                        {/* <button  className="p-4">
-                          <FontAwesomeIcon icon={faUpload} />
-                        </button> 
-                      <button onClick={handleAsk} className="rounded-lg p-4 bg-blue-500">
-                          Pregúntame algo
-                      </button>*/}
-                        {
-                          btnVisible && 
-                          <button 
-                          onClick={()=>{
-                            setBtnVisible(false);
-                            setInputEnabled(true);
-                            //resetDataUser();
-                            initFlow();
-                          }}
-                          className="btn">
-                          Iniciar Itinerario
-                          </button>
-                        }
-                        { 
-                            !btnVisible && !flowFinished &&
-                            <button  
-                            onClick={initFlow} 
-                            className="btn"
-                            disabled={inputData.trim() === '' || loading}>
-                              {
-                                loading ? 'Generando Itinerario...' : 'Siguiente'
-                              }
-                            </button>
-                        }
-                        {
-                            flowFinished &&
-                            <button
-                              onClick={()=>{sendFeedback()}}
-                              className="btn">
-                            Modificar algo
-                          </button>
-                        }
-                  </div>
-                </div>
-                
-
+                {itineraryCorrected &&  
+                                  <div className="w-full p-4 ballon bg-gray flex flex-column md:flex-row justify-between">
+                                  {
+                                    inputEnabled && 
+                                    <div className="w-full">
+                                        <textarea
+                                          className="w-full p-4 h-20 bg-transparent resize-none"
+                                          placeholder={ !flowFinished ? "Tu respuesta aquí..." : "Deseas modificar algo?"}
+                                          autoFocus
+                                          value={inputData}
+                                          onChange={(e) => setInputData(e.target.value)}
+                                          onKeyUp={handleKeyPress}
+                                      />
+                                    </div>
+                                    
+                                  }
+                                  
+                                  <div className="flex justify-between">
+                                        {/* <button  className="p-4">
+                                          <FontAwesomeIcon icon={faUpload} />
+                                        </button> 
+                                      <button onClick={handleAsk} className="rounded-lg p-4 bg-blue-500">
+                                          Pregúntame algo
+                                      </button>*/}
+                                        {
+                                          btnVisible && 
+                                          <button 
+                                          onClick={()=>{
+                                            setBtnVisible(false);
+                                            setInputEnabled(true);
+                                            //resetDataUser();
+                                            initFlow();
+                                          }}
+                                          className="btn">
+                                          Iniciar Itinerario
+                                          </button>
+                                        }
+                                        { 
+                                            !btnVisible && !flowFinished &&
+                                            <button  
+                                            onClick={initFlow} 
+                                            className="btn"
+                                            disabled={inputData.trim() === '' || loading}>
+                                              {
+                                                loading ? 'Generando Itinerario...' : 'Siguiente'
+                                              }
+                                            </button>
+                                        }
+                                        {
+                                            flowFinished &&
+                                            <button
+                                              onClick={()=>{sendFeedback()}}
+                                              className="btn">
+                                            Modificar algo
+                                          </button>
+                                        }
+                                  </div>
+                                </div>
+                }
             </div>
           </div>
     </div>
