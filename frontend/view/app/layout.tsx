@@ -1,3 +1,4 @@
+import 'tailwindcss/tailwind.css';
 import type { Metadata } from "next";
 import "./globals.scss";
 
