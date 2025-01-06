@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from "react";
 export default function Home() {
 
   const apiKey = process.env.NEXT_PUBLIC_API_KEY;
-  const apiUrl = process.env.NEXT_PUBLIC_API_NODE_URL;
   
   const [inputData, setInputData] = useState('');
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
