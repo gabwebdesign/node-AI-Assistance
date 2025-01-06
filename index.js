@@ -18,6 +18,18 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Middleware para verificar la autenticación
+const authenticate = (req, res, next) => {
+  const apiKey = req.headers['x-api-key'];
+  if (apiKey && apiKey === process.env.API_KEY) {
+    next();
+  } else {
+    res.status(401).json({ error: 'Unauthorized' });
+  }
+};
+
+
 //fileLoad('data/food.pdf');
 //const tours = scrapping(
 //  'https://www.civitatis.com/es/costa-rica/?_gl=1*pjnvms*_up*MQ..*_gs*MQ..&gclid=CjwKCAiAyJS7BhBiEiwAyS9uNe7Mf6WTrwuOfTmSSFYe6nKzNhb1MHZcc2STGKAN4RK5MHQZlquVLhoCNawQAvD_BwE&gclsrc=aw.ds',
@@ -60,7 +72,7 @@ const embeddings = async (query) => {
 
 }
 
-app.get('/api/reset', async (res) => {
+app.get('/api/reset', authenticate, async (res) => {
   const reset = await resetContext();
   res.status(200).json({
     success: true,
@@ -68,7 +80,7 @@ app.get('/api/reset', async (res) => {
   });
 });
 
-app.post("/api/flows", async (req, res) => {
+app.post("/api/generate-itinerary", authenticate, async (req, res) => {
   const { respuesta } = req.body;
   console.log(`Respuesta del usuario a ${preguntaActual}:, ${req.body}`);
   
@@ -91,7 +103,7 @@ app.post("/api/flows", async (req, res) => {
   }
 });
 
-app.post('/api/feedback', async (req, res) => {
+app.post('/api/feedback-itinerary', authenticate ,async (req, res) => {
   const newItinerary = await feedbackItinerary(req.body.feedback);
   res.status(200).json({
     success: true,
@@ -99,7 +111,7 @@ app.post('/api/feedback', async (req, res) => {
   })
 });
 
-app.post('/api/ask', async (req, res) => {
+app.post('/api/ask',authenticate, async (req, res) => {
     const message = req.body.messages;
 
     const prompt = {
