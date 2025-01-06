@@ -5,6 +5,9 @@ import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
 
+  const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+  const apiUrl = process.env.NEXT_PUBLIC_API_NODE_URL;
+  
   const [inputData, setInputData] = useState('');
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const [inputEnabled, setInputEnabled] = useState(false);
@@ -38,9 +41,14 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:5001/api/flows', {
+      const res = await axios.post(`${apiUrl}/api/generate-itinerary`, {
         respuesta: inputData
-      } );
+      },{
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': `${apiKey}`
+        }
+      });
 
       const userMessage = { role: "user", content: inputData };
       const assistanceResponse = res.data.pregunta ?? res.data.response;
@@ -55,7 +63,7 @@ export default function Home() {
 
       setInputData('');
       setLoading(false);
-      setItineraryCorrected(true);
+      
       //return res.data.pregunta;
     } catch (error) { 
       console.error('Error al obtener la conversacion:', error)
@@ -64,10 +72,18 @@ export default function Home() {
 
   const sendFeedback = async () => {
     try {
-      const res = await axios.post('http://localhost:5001/api/feedback',{feedback: inputData});
+      const res = await axios.post(`${apiUrl}/api/feedback-itinerary`, {
+        feedback: inputData
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': `${apiKey}`
+        }
+      });
       console.log('nuevo itinerario:', res.data.response);
 
       updateMessages(res.data.response, inputData);
+      setItineraryCorrected(true);
     } catch (error) {
       console.error('Error al obtener el itinerario corregido:', error);
     }
