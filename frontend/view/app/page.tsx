@@ -108,7 +108,7 @@ export default function Home() {
       <div className="">
           <div className="p-2 gap-2">
             <div className="flex justify-center">
-              <Image src={"/assistant-trip.png"} className="pt-5 pb-5 w-auto h-auto" width={80} height={40} alt="assistant trip image" />
+              <Image src="/assistant-trip.png" className="pt-5 pb-5 w-auto h-auto" width={80} height={40} alt="assistant trip image" />
             </div>
             {
               btnVisible && 
