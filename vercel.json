@@ -1,20 +1,17 @@
 {
-    "version": 2,
-    "projects": {
-      "frontend": {
-        "src": "frontend/view",
-        "use": "@vercel/static-build",
-        "buildCommand": "npm run build",
-        "outputDirectory": "build"
-      },
-      "backend": {
-        "src": "/",
-        "use": "@vercel/node"
-      }
+  "version": 2,
+  "builds": [
+    {
+      "src": "frontend/view/next.config.js",
+      "use": "@vercel/next"
     },
-    "routes": [
-      { "src": "/api/(.*)", "dest": "/index.js" }, 
-      { "src": "/(.*)", "dest": "/frontend/view/$1" }
-    ]
-  }
-  
+    {
+      "src": "index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/index.js" },
+    { "src": "/(.*)", "dest": "/frontend/view/.next/$1" }
+  ]
+}
