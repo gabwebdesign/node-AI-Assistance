@@ -119,7 +119,7 @@ export default function Home() {
                     ))}
                   </ul>
                 </div>
-                {itineraryCorrected &&  
+                {!itineraryCorrected &&  
                                   <div className="w-full p-4 ballon bg-gray flex flex-column md:flex-row justify-between">
                                   {
                                     inputEnabled && 
