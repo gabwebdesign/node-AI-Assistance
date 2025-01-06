@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "frontend/view/next.config.js",
+      "src": "frontend/view/package.json",
       "use": "@vercel/next"
     },
     {
@@ -12,6 +12,6 @@
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/index.js" },
-    { "src": "/(.*)", "dest": "/frontend/view/.next/server/app/page.js" }
+    { "src": "/(.*)", "dest": "/frontend/view" }
   ]
 }
