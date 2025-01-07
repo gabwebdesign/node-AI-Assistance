@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['node-ai-assistance-frontend.vercel.app/frontend/view'], // Añade los dominios desde los que cargarás imágenes
+    domains: ['node-ai-assistance-frontend-view.vercel.app'], // Añade los dominios desde los que cargarás imágenes
   },
   async rewrites() {
     return [

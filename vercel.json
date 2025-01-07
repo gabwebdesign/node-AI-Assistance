@@ -17,7 +17,7 @@
     },
     { 
       "src": "/(.*)", 
-      "dest": "/frontend/view/.next/server/app/page.js"
+      "dest": "/.next/server/app/page.js"
     }
   ]
 }
