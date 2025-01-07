@@ -20,5 +20,5 @@
       "dest": "/.next/server/app/page.js"
     }
   ],
-  "buildCommand": "npx playwright install --with-deps"
+  "buildCommand": "npx playwright install chromium"
 }
