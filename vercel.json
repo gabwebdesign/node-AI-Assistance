@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "frontend/view",
+      "src": "frontend/view/app/pages.tsx",
       "use": "@vercel/next"
     },
     {
