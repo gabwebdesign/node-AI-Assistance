@@ -4,16 +4,13 @@ require('dotenv').config();
 // Configura la petición
 const APITemplate = async () => {
     const options = {
-        method: 'GET',
-        url: 'https://maps.googleapis.com/maps/api/place/nearbysearch/json',
-        params: {
-            location: '9.9325,-84.0316',
-            radius: 5000,
-            limit: 10,
-            type: 'restaurant',
-            key: process.env.GOOGLE_MAPS_API_KEY
-        }
-      };
+      method: 'GET',
+      url: 'https://maps.googleapis.com/maps/api/place/textsearch/json',
+      params: {
+        query: 'restaurantes en Costa Rica',
+        key: process.env.GOOGLE_MAPS_API_KEY
+      }
+    };
       
       axios.request(options).then((response) => {
         const restaurantes = response.data.results.map((restaurant) => ({
